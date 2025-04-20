@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Explorer</title>
+  <script defer src="app.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    /* Adding styles to make the modal scrollable */
+    #modalContent {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* Styling for the close button in the modal */
+    #closeModal {
+      font-size: 1.5rem;
+      background: transparent;
+      border: none;
+      color: #555;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Book Explorer</h1>
+
+    <!-- Search Filters -->
+    <div class="bg-white p-4 rounded shadow mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label class="block mb-1">Genre:</label>
+          <select id="genreInput" class="w-full p-2 border rounded">
+            <option value="">Any</option>
+            <option value="fantasy">Fantasy</option>
+            <option value="science_fiction">Science Fiction</option>
+            <option value="horror">Horror</option>
+            <option value="romance">Romance</option>
+            <option value="poetry">Poetry</option>
+            <option value="history">History</option>
+            <option value="mystery">Mystery</option>
+            <option value="thriller">Thriller</option>
+            <option value="young_adult">Young Adult</option>
+            <option value="biography">Biography</option>
+          </select>
+        </div>
+        <div>
+          <label class="block mb-1">Author:</label>
+          <input type="text" id="authorInput" class="w-full p-2 border rounded" placeholder="e.g., Tolkien"/>
+        </div>
+        <div>
+          <label class="block mb-1">Language (ISO 639-2):</label>
+          <input type="text" id="languageInput" class="w-full p-2 border rounded" placeholder="e.g., eng"/>
+        </div>
+        <div>
+          <label class="block mb-1">Published After Year:</label>
+          <input type="number" id="yearFromInput" class="w-full p-2 border rounded" placeholder="e.g., 1950"/>
+        </div>
+        <div>
+          <label class="block mb-1">Published Before Year:</label>
+          <input type="number" id="yearToInput" class="w-full p-2 border rounded" placeholder="e.g., 2000"/>
+        </div>
+        <div>
+          <label class="block mb-1">Number of Books:</label>
+          <input type="number" id="amountInput" min="1" value="3" class="w-full p-2 border rounded"/>
+        </div>
+      </div>
+      <button id="fetchButton" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Fetch Books</button>
+    </div>
+
+    <!-- Search Results -->
+    <h2 class="text-2xl font-semibold mb-2">Results</h2>
+    <div id="bookDisplay" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"></div>
+
+    <!-- Favorites -->
+    <h2 class="text-2xl font-semibold mb-2">Favorites</h2>
+    <div id="favoritesList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </div>
+
+  <!-- Modal for Book Details -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded shadow-lg max-w-md w-full relative">
+      <button id="closeModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">&times;</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+</body>
+</html>
