@@ -44,11 +44,12 @@ function createBookCard(book) {
     const coverId = book.cover_i;
     const coverUrl = coverId 
       ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`
-      : 'https://via.placeholder.com/128x193?text=No+Cover';
+      : 'https://placecats.com/320/180';
   
-    // Set the card content including the cover image
+
     div.innerHTML = `
-      <img src="${coverUrl}" alt="${title}" class="w-full h-48 object-cover mb-2 rounded">
+      <img src="${coverUrl}" alt="${title}" class="w-full h-48 object-contain mb-2 rounded bg-gray-100">
+
       <h3 class="font-bold text-lg">${title}</h3>
       <p class="text-sm text-gray-600">By: ${author}</p>
       <p class="text-sm text-gray-600">Published: ${year}</p>
@@ -59,8 +60,7 @@ function createBookCard(book) {
         </button>
       </div>
     `;
-  
-    // Add event listeners for the buttons
+
     div.querySelector('.fav-btn').addEventListener('click', () => toggleFavorite(book));
     div.querySelector('.details-btn').addEventListener('click', () => showDetails(book));
   
@@ -79,6 +79,28 @@ function displayFavorites() {
 
 let currentBooks = [];
 
+function showSkeletons(count = 3) {
+  bookDisplay.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    const skeleton = document.createElement('div');
+    skeleton.className = 'bg-white rounded shadow p-4 flex flex-col justify-between animate-pulse';
+
+    skeleton.innerHTML = `
+      <div class="w-full h-48 bg-gray-300 rounded mb-2"></div>
+      <div class="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
+      <div class="h-4 bg-gray-300 rounded w-1/2 mb-1"></div>
+      <div class="h-4 bg-gray-300 rounded w-1/3 mb-4"></div>
+      <div class="mt-auto flex justify-between items-center">
+        <div class="h-4 w-20 bg-gray-300 rounded"></div>
+        <div class="h-8 w-28 bg-gray-300 rounded"></div>
+      </div>
+    `;
+
+    bookDisplay.appendChild(skeleton);
+  }
+}
+
+
 async function fetchBooks() {
   const genre = genreInput.value;
   const author = authorInput.value;
@@ -86,6 +108,7 @@ async function fetchBooks() {
   const yearFrom = isNaN(parseInt(yearFromInput.value)) ? null : parseInt(yearFromInput.value);
   const yearTo = isNaN(parseInt(yearToInput.value)) ? null : parseInt(yearToInput.value);
   const amount = parseInt(amountInput.value);
+  showSkeletons(amount);
 
   let url = `https://openlibrary.org/search.json?`;
   if (genre) url += `subject=${genre}&`;
@@ -111,45 +134,72 @@ async function fetchBooks() {
 }
 
 async function showDetails(book) {
-    try {
-      const workKey = book.key; // e.g., "/works/OL12345W"
+    try 
+    {
+      const workKey = book.key;
       const res = await fetch(`https://openlibrary.org${workKey}.json`);
       const details = await res.json();
   
       const title = details.title || book.title;
       const description = typeof details.description === 'string' ? details.description : details.description?.value || 'No description available';
-      const authors = details.authors?.map(author => author.name).join(', ') || 'Unknown authors';
-      const firstPublishDate = details.first_publish_date || 'Unknown year';
+      const authors = book.author_name?.join(', ') || 'Unknown author';
+      const languages = book.language	?.join(', ') || 'Unknown languages';
+      const firstPublishDate = book.first_publish_year || 'Unknown year';
       const subjects = details.subjects?.join(', ') || 'No subjects available';
-      const publishers = details.publishers?.join(', ') || 'Unknown publisher(s)';
-      const coverId = details.cover_id;
-      const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg` : 'https://via.placeholder.com/300x450?text=No+Cover';
+      const coverId = book.cover_i;
+      const coverUrl = coverId 
+        ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`
+        : 'https://placecats.com/128/193';
   
-      // Building a richer modal content with only relevant information
-      modalContent.innerHTML = `
-        <div class="modal-header flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold">${title}</h2>
-        </div>
-        <div class="modal-body flex">
-          <img src="${coverUrl}" alt="${title}" class="w-40 h-auto rounded-lg mr-6">
-          <div class="details">
-            <p><strong>Description:</strong><br> ${description}</p>
-            ${authors !== 'Unknown authors' ? `<p><strong>Authors:</strong> ${authors}</p>` : ''}
-            ${firstPublishDate !== 'Unknown year' ? `<p><strong>First Published:</strong> ${firstPublishDate}</p>` : ''}
-            ${subjects !== 'No subjects available' ? `<p><strong>Subjects:</strong> ${subjects}</p>` : ''}
-            ${publishers !== 'Unknown publisher(s)' ? `<p><strong>Publisher(s):</strong> ${publishers}</p>` : ''}
+      modalContent.innerHTML = 
+        `<div class="p-6 bg-white rounded-lg shadow max-w-3xl w-full">
+          <div class="flex justify-between items-start mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">${title}</h2>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-6 overflow-y-auto max-h-[70vh]">
+            <img src="${coverUrl}" alt="${title}" class="w-40 h-auto rounded-lg self-start flex-shrink-0">
+
+            <div class="space-y-4 text-gray-700">
+              <div>
+                <h3 class="font-semibold mb-1">Description</h3>
+                <p class="text-sm leading-relaxed">${description}</p>
+              </div>
+              ${authors !== 'Unknown author' ? `
+              <div>
+                <h3 class="font-semibold mb-1">Author(s)</h3>
+                <p class="text-sm">${authors}</p>
+              </div>` : ''}
+              ${languages !== 'Unknown languages' ? `
+                <div>
+                  <h3 class="font-semibold mb-1">Language(s)</h3>
+                  <p class="text-sm">${languages}</p>
+                </div>` : ''}
+              ${firstPublishDate !== 'Unknown year' ? `
+              <div>
+                <h3 class="font-semibold mb-1">First Published</h3>
+                <p class="text-sm">${firstPublishDate}</p>
+              </div>` : ''}
+              ${subjects !== 'No subjects available' ? `
+              <div>
+                <h3 class="font-semibold mb-1">Tags</h3>
+                <p class="text-sm">${subjects}</p>
+              </div>` : ''}
+            </div>
           </div>
         </div>
       `;
+
   
-      modal.classList.remove('hidden');
-    } catch (error) {
+    modal.classList.remove('hidden');
+  } 
+  catch (error) 
+  {
       console.error('Error loading details:', error);
       modalContent.innerHTML = `<p class="text-red-500">Error loading details.</p>`;
       modal.classList.remove('hidden');
-    }
   }
-
+}
 
 closeModal.addEventListener('click', () => {
   modal.classList.add('hidden');
